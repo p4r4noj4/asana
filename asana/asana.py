@@ -221,19 +221,27 @@ class AsanaAPI(object):
         """
         return self._asana('projects/%d' % project_id)
 
-    def get_project_tasks(self, project_id, include_archived=False):
+    def get_project_tasks(self, project_id, include_archived=False, include_completed=False, expand=False):
         """Get project tasks
 
         :param project_id: id# of project
         :param include_archived: true to include archived tasks
+        :param include_completed: true to include completed tasks
+        :param expand: true to access full tasks information
         """
         # Sanitise our include_archived variable
         if include_archived:
             include_archived = "true"
         else:
             include_archived = "false"
-        return self._asana('projects/%d/tasks?include_archived=%s' % (
-            project_id, include_archived))
+        completed = ""
+        opt_expand = ""
+        if not include_completed:
+            completed = "&completed_since=now"
+        if expand:
+            opt_expand = "&opt_expand=."
+        return self._asana('projects/%d/tasks?include_archived=%s%s%s' % (
+            project_id, include_archived, completed, opt_expand))
 
     def list_stories(self, task_id):
         """List stories for task
